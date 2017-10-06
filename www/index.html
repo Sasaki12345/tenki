@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="components/loader.js"></script>
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        $(function(){
+            $("#kagawa,#ehime,#tokusima,#kouti").on("click",function(){
+            //console.log("ddddd");
+            var ken = $(this).attr("ken");
+            
+                //xmlファイルからデータを参照する
+            	$.ajax({
+//					url: 'http://javascriptajax.azurewebsites.net/get_tenki.php?city='+ken,
+    				url: 'http://javascriptajax.azurewebsites.net/get_tenki_json.php?city='+ken,
+					
+                    type:'GET',
+					dataType: 'json',
+
+				}).done(function(data){ //ajaxの通信に成功した場合
+                    console.log($(data).find("discription:eq(0).text"));
+                    //alert("受信成功"); 
+                    //データを消し去る
+                    $("#wether").empty();
+                    $("#wether2").empty();
+                    $("#sityoson").empty();
+                    //天気の概況文
+                    $("#wether").append(data.description.text);
+                    $("#wether").append(data.description.publicTime);
+                    //"data"{
+                    //  "discription":{"text":"香川県の天気は・・・",
+                    //                 "publicTime":"20177/0710"}    
+                    //}
+                    //console.log(Object.keys(data.forecasts).length);
+                    var json_obj_length =Object.keys(data.forecasts).length;
+                    var json_obj_length2 =Object.keys(data.pinpointLocations).length;
+
+                    
+                    //3日分のデータを表示するpinpointLocations
+
+                    var html ="";
+                    html += '<tr>';
+                    for(var i = 0; i <json_obj_length;i++){
+                        html +='<td>'+ data.forecasts[i].dateLabel +'</td>';
+                    }
+                    html += '</tr>';
+
+                    html += '<tr>';
+                    for(var i = 0; i <json_obj_length;i++){
+                        html +='<td>'+'<img src='+data.forecasts[i].image.url+'>' +'</td>';
+                    }
+                    html += '</tr>';
+
+                    html += '<tr>';
+                    for(var i = 0; i <json_obj_length;i++){
+                        html +='<td>'+ data.forecasts[i].telop +'</td>';
+                    }
+                    html += '</tr>';
+                    $("#wether2").append(html);
+
+                    var html2="";
+                    for(var i = 0; i <json_obj_length2;i++){
+                        html2+="<tr>"
+                        // html2 +='<td>'+ data.pinpointLocations[i].name +'</td>';
+                        html2 +='<td><a href="'+data.pinpointLocations[i].link+'">'+ data.pinpointLocations[i].name +'</a></td>';
+                        html2+="</tr>"
+                    }
+                    
+
+                    $("#sityoson").append(html2);
+                    
+                    $("#wether").html($(data).find("discription:eq(0).text"));
+				}).fail(function(data){ //ajaxの通信に失敗した場合
+					//受信失敗時の処理をここに書く
+					alert("受信失敗");
+                    console.log("受信失敗");
+
+			
+				});
+
+
+        });
+
+    });    
+    </script>
+</head>
+<body>
+    <h1>天気予報</h1>
+    <input type="submit" id="kagawa" value="香川県" ken="370000"><br>
+    <input type="submit" id="ehime" value="愛媛県" ken="380010"><br>
+    <input type="submit" id="tokusima" value="徳島県" ken="360010"><br>
+    <input type="submit" id="kouti" value="高知県" ken="390010"><br>
+
+    <h2>ここに天気予報を表示します</h2>
+<div id ="wether"></div>
+<table id="wether2"></table>
+
+<table id="sityoson" border="1"></table>
+
+        
+    </div>
+    
+</body>
+</html>
